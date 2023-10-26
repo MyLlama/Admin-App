@@ -2,63 +2,58 @@
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
 
-const auth = useAuthStore()
+const { userLogin } = useAuthStore()
 
-const inputData = ref({
-  username: '',
-  password: ''
-})
-
+const username = ref('')
+const password = ref('')
 const showPassword = ref(false)
-const dialog = ref(false)
+const ShowLoginModal = ref(false)
 
-const submitLoginForm = async () => {
-  await auth.login(inputData.value.username, inputData.value.password)
+const login = async () => {
+  await userLogin(username.value, password.value)
 }
 
-const usernameRules = ref([(v: any) => !!v || 'Username is required'])
-const passwordRules = ref([
-  (v: any) => !!v || 'Password is required',
-  (v: string | any[]) => (v && v.length >= 6) || 'Password must be at least 6 characters long'
+const usernameValidation = ref([(username: any) => !!username || 'Username is required'])
+const passwordValidation = ref([
+  (password: any) => !!password || 'Password is required',
+  (password: string | any[]) =>
+    (password && password.length >= 6) || 'Password must be at least 6 characters long'
 ])
 
 onMounted(() => {
-  dialog.value = true
+  ShowLoginModal.value = true
 })
 </script>
 
 <template>
-  <v-dialog v-model="dialog" width="450" transition="dialog-top-transition">
+  <v-dialog v-model="ShowLoginModal" width="450" transition="dialog-top-transition">
     <v-card class="pa-9 rounded-xl" id="login-modal-card">
-      <p class="font-weight-black mb-6 mt-6">Open Llama</p>
+      <p class="font-weight-black mb-13 mt-6 text-center">{{ $t('Open Llama') }}</p>
 
-      <v-form @submit.prevent="submitLoginForm">
-        <vs-icon icon="mood"></vs-icon>
-        <p class="font-weight-light">Please enter your Id/Email</p>
+      <v-form @submit.prevent="login">
+        <p class="font-weight-light">{{ $t('Enter your Username') }}</p>
 
         <v-text-field
           class="login-input-fields"
-          clearable
           type="text"
           density="compact"
-          placeholder="id or email"
+          :placeholder="$t('Enter Username')"
           variant="outlined"
-          v-model.trim="inputData.username"
-          :rules="usernameRules"
+          v-model.trim="username"
+          :rules="usernameValidation"
           rounded="lg"
         ></v-text-field>
 
-        <p class="font-weight-light">Please enter your Password</p>
+        <p class="font-weight-light">{{ $t('Enter your Password') }}</p>
 
         <v-text-field
           class="login-input-fields"
-          v-model.trim="inputData.password"
-          :rules="passwordRules"
+          v-model.trim="password"
+          :rules="passwordValidation"
           variant="outlined"
           :type="showPassword ? 'text' : 'password'"
-          @click:append-inner="showPassword = !showPassword"
           density="compact"
-          placeholder="password"
+          :placeholder="$t('Enter Password')"
           rounded="lg"
         >
           <template v-slot:append-inner>
@@ -67,15 +62,14 @@ onMounted(() => {
           </template>
         </v-text-field>
 
-        <div class="login-helpers">
-          <v-checkbox label="Remember me" color="orange" hide-details></v-checkbox>
-          <p class="forgot-password-button">Forgot Password?</p>
+        <div class="d-flex flex-row justify-center align-center">
+          <v-checkbox :label="$t('Remember me')" color="orange" hide-details></v-checkbox>
+          <p class="forgot-password-button">{{ $t('Forgot Password?') }}</p>
         </div>
-        
+
         <v-btn
           color="#FB8430"
-          class="text-capitalize mt-6 mb-8 rounded-pill"
-          id="login-details-submit-button"
+          class="text-capitalize my-6 mx-auto rounded-pill d-flex justify-center py-7 px-15"
           type="submit"
         >
           continue
@@ -86,24 +80,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-#login-details-submit-button {
-  display: block;
-  margin: 0 auto;
-  width: 60%;
-  height: 50px;
-  font-weight: 600;
-  font-family: 'Albert Sans', sans-serif;
-  color: #fff;
-}
-
-.para {
-  height: 200vh;
-}
-
 .login-input-fields {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Albert Sans', sans-serif;
   font-size: 16px;
-  color: #281d15;
 }
 
 #login-modal-card {
@@ -113,32 +92,24 @@ onMounted(() => {
       rgba(255, 209, 89, 0.01) 100%
     ),
     linear-gradient(348deg, rgba(249, 249, 249, 0.91) -4.32%, rgba(251, 251, 251, 0.91) 103.37%);
-
   box-shadow: -2px 82px 109px -25px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(19px);
 }
 
 .font-weight-light {
   font-family: 'Albert Sans', sans-serif;
-  color: #4e392b;
-}
-
-.login-helpers {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 13px;
+  color: var(--username-password-lable);
 }
 
 .font-weight-black {
   font-family: 'Dosis', sans-serif;
-  text-align: center;
-  color: #4e3423;
+  color: var(--login-heading);
   font-size: 32px;
 }
 
 .forgot-password-button {
-  color: #d65a03;
+  color: var(--primary);
+  font-size: 13px;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 </style>

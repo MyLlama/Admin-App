@@ -1,37 +1,35 @@
-import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import type { Ref, ComputedRef } from 'vue'
 import axios from 'axios'
 
-export const useAuthStore = defineStore({
-  id: 'auth',
-  state: () => ({
-    isLoggedIn: false,
-    authToken: null
-  }),
-  actions: {
-    async login(username: string, password: string) {
-      const baseUrl = import.meta.env.VITE_OPEN_EDX_BASE_URL + `/oauth2/access_token`
-      try {
-        const response = await axios.post(baseUrl, null, {
-          params: {
-            username,
-            password,
-            grant_type: 'password',
-            client_id: import.meta.env.VITE_CLIENT_ID
-          }
-        })
-        if (response.status === 200) {
-          this.isLoggedIn = true
-          this.authToken = response.data.access_token
+const baseUrl = import.meta.env.VITE_OPEN_EDX_BASE_URL
+
+export function useAuthStore() {
+  const userId: Ref<string | null> = ref(null)
+  const authToken: Ref<string | null> = ref(null)
+
+  async function userLogin(username: string, password: string): Promise<void> {
+    try {
+      const response = await axios.post(baseUrl, null, {
+        params: {
+          username,
+          password,
+          grant_type: 'password',
+          client_id: import.meta.env.VITE_CLIENT_ID
         }
-        return response.data
-      } catch (error) {
-        console.error(error)
-        return {}
-      }
-    },
-    logout() {
-      this.isLoggedIn = false
-      this.authToken = null
+      })
+      authToken.value = response.data.access_token
+    } catch (error) {
+      console.error(error)
     }
   }
-})
+
+  const isAuthenticated: ComputedRef<boolean> = computed(() => !!authToken.value)
+
+  return {
+    userId,
+    authToken,
+    userLogin,
+    isAuthenticated
+  }
+}
