@@ -22,9 +22,6 @@ export const useAuthStore = defineStore({
         if (response.status === 200) {
           this.isLoggedIn = true
           this.authToken = response.data.access_token
-          console.log('Login Successful !!')
-        } else {
-          console.log('Error in Login !!')
         }
         return response.data
       } catch (error) {
