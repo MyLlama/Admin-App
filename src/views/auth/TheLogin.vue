@@ -1,38 +1,46 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '../../stores/auth'
+import { useRouter } from 'vue-router'
 
-const { userLogin } = useAuthStore()
+const router = useRouter()
+const { userLogin, isAuthenticated } = useAuthStore()
 
-const username = ref('')
-const password = ref('')
+let showLoginModal = false
+let username = ref('')
+let password = ref('')
 const showPassword = ref(false)
-const showLoginModal = ref(false)
+let invalidLogin = ref(false)
+const snackbar = ref(false)
 
 const login = async () => {
   await userLogin(username.value, password.value)
+  const isAuthenticate = isAuthenticated()
+  if (isAuthenticate) {
+    router.replace({ name: 'home' })
+  } else if (username.value == '' && password.value == '') {
+    snackbar.value = false
+  } else {
+    invalidLogin.value = true
+    snackbar.value = true
+  }
 }
 
-const usernameValidation = ref([(username: any) => !!username || 'Username is required'])
-const passwordValidation = ref([
-  (password: any) => !!password || 'Password is required',
-  (password: string | any[]) =>
-    (password && password.length >= 6) || 'Password must be at least 6 characters long'
-])
+const usernameValidation = [(username: any) => !!username || 'Username is required']
+const passwordValidation = [(password: any) => !!password || 'Password is required']
 
 onMounted(() => {
-  showLoginModal.value = true
+  showLoginModal = true
 })
 </script>
 
 <template>
-  <v-dialog v-model="showLoginModal" width="450" transition="dialog-top-transition">
-    <v-card class="pa-9 rounded-xl" id="login-modal-card">
+  <v-dialog v-model="showLoginModal" width="450" transition="dialog-top-transition" persistent>
+    <v-card class="pa-9 rounded-xl" id="login-modal-card" :class="[`elevation-${5}`]">
       <p class="font-weight-black mb-13 mt-6 text-center">{{ $t('Open Llama') }}</p>
 
       <v-form @submit.prevent="login">
         <p class="font-weight-light">{{ $t('Enter your Username') }}</p>
-
         <v-text-field
           class="login-input-fields"
           type="text"
@@ -45,7 +53,6 @@ onMounted(() => {
         ></v-text-field>
 
         <p class="font-weight-light">{{ $t('Enter your Password') }}</p>
-
         <v-text-field
           class="login-input-fields"
           v-model.trim="password"
@@ -57,19 +64,22 @@ onMounted(() => {
           rounded="lg"
         >
           <template v-slot:append-inner>
-            <i class="isax isax-eye" v-if="showPassword" @click="showPassword = !showPassword"></i>
-            <i class="isax isax-eye-slash" v-else @click="showPassword = !showPassword"></i>
+            <i
+              class="isax"
+              :class="showPassword ? 'isax-eye' : 'isax-eye-slash'"
+              @click="showPassword = !showPassword"
+            ></i>
           </template>
         </v-text-field>
 
         <div class="d-flex flex-row justify-center align-center">
           <v-checkbox :label="$t('Remember me')" color="orange" hide-details></v-checkbox>
-          <p class="forgot-password-button">{{ $t('Forgot Password?') }}</p>
+          <p class="forgot-password-button text-body-2">{{ $t('Forgot Password?') }}</p>
         </div>
 
         <v-btn
-          color="#FB8430"
-          class="text-capitalize my-6 mx-auto rounded-pill d-flex justify-center py-7 px-15"
+          class="text-capitalize my-6 mx-auto rounded-pill d-flex justify-center py-7 px-15 text-white"
+          id="login-details-submit-button"
           type="submit"
         >
           continue
@@ -77,12 +87,20 @@ onMounted(() => {
       </v-form>
     </v-card>
   </v-dialog>
+
+  <div class="text-center">
+    <v-snackbar color="var(--primary)" v-model="snackbar">
+      Invalid Credentials
+      <template v-slot:actions>
+        <v-btn color="white" variant="text" @click="snackbar = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
+  </div>
 </template>
 
 <style scoped>
 .login-input-fields {
   font-family: 'Albert Sans', sans-serif;
-  font-size: 16px;
 }
 
 #login-modal-card {
@@ -92,7 +110,6 @@ onMounted(() => {
       rgba(255, 209, 89, 0.01) 100%
     ),
     linear-gradient(348deg, rgba(249, 249, 249, 0.91) -4.32%, rgba(251, 251, 251, 0.91) 103.37%);
-  box-shadow: -2px 82px 109px -25px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(19px);
 }
 
@@ -107,9 +124,12 @@ onMounted(() => {
   font-size: 32px;
 }
 
+#login-details-submit-button {
+  background-color: var(--login-submit-button);
+}
+
 .forgot-password-button {
   color: var(--primary);
-  font-size: 13px;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 </style>
