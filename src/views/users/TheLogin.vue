@@ -7,7 +7,7 @@ const { userLogin } = useAuthStore()
 const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
-const ShowLoginModal = ref(false)
+const showLoginModal = ref(false)
 
 const login = async () => {
   await userLogin(username.value, password.value)
@@ -21,12 +21,12 @@ const passwordValidation = ref([
 ])
 
 onMounted(() => {
-  ShowLoginModal.value = true
+  showLoginModal.value = true
 })
 </script>
 
 <template>
-  <v-dialog v-model="ShowLoginModal" width="450" transition="dialog-top-transition">
+  <v-dialog v-model="showLoginModal" width="450" transition="dialog-top-transition">
     <v-card class="pa-9 rounded-xl" id="login-modal-card">
       <p class="font-weight-black mb-13 mt-6 text-center">{{ $t('Open Llama') }}</p>
 
