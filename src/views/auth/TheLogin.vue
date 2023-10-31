@@ -10,19 +10,18 @@ let showLoginModal = false
 let username = ref('')
 let password = ref('')
 const showPassword = ref(false)
-let invalidLogin = ref(false)
-const snackbar = ref(false)
+const showSnackbar = ref(false)
 
 const login = async () => {
-  await userLogin(username.value, password.value)
-  const isAuthenticate = isAuthenticated()
-  if (isAuthenticate) {
-    router.replace({ name: 'home' })
-  } else if (username.value == '' && password.value == '') {
-    snackbar.value = false
-  } else {
-    invalidLogin.value = true
-    snackbar.value = true
+  if (username.value && password.value) {
+    await userLogin(username.value, password.value, router)
+    const isAuthenticate = isAuthenticated()
+    if (isAuthenticate) {
+      router.replace({ name: 'home' })
+    } else {
+      console.error('Authentication Failed!')
+      showSnackbar.value = true
+    }
   }
 }
 
@@ -36,7 +35,7 @@ onMounted(() => {
 
 <template>
   <v-dialog v-model="showLoginModal" width="450" transition="dialog-top-transition" persistent>
-    <v-card class="pa-9 rounded-xl" id="login-modal-card" :class="[`elevation-${5}`]">
+    <v-card class="pa-9 rounded-xl" id="login-modal-card elevation-1">
       <p class="font-weight-black mb-13 mt-6 text-center">{{ $t('Open Llama') }}</p>
 
       <v-form @submit.prevent="login">
@@ -82,17 +81,17 @@ onMounted(() => {
           id="login-details-submit-button"
           type="submit"
         >
-          continue
+          Login
         </v-btn>
       </v-form>
     </v-card>
   </v-dialog>
 
   <div class="text-center">
-    <v-snackbar color="var(--primary)" v-model="snackbar">
+    <v-snackbar color="var(--primary)" v-model="showSnackbar">
       Invalid Credentials
       <template v-slot:actions>
-        <v-btn color="white" variant="text" @click="snackbar = false"> Close </v-btn>
+        <v-btn color="white" variant="text" @click="showSnackbar = false"> Close </v-btn>
       </template>
     </v-snackbar>
   </div>

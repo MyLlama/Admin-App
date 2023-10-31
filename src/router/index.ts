@@ -6,37 +6,28 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
+      redirect: '/home'
     },
     {
       path: '/home',
       name: 'home',
-      component: () => import('../views/HomeView.vue'),
-      meta: {
-        requiresAuth: true
-      }
+      component: () => import('../views/HomeView.vue')
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('../views/auth/TheLogin.vue'),
-      meta: {
-        requiresUnauth: true
-      }
+      component: () => import('../views/auth/TheLogin.vue')
     }
   ]
 })
-
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
   const authStore = useAuthStore()
-
-  if (to.meta.requiresAuth && !authStore.isAuthenticated()) {
+  if (!authStore.isAuthenticated() && to.name !== 'login') {
     next('/login')
-  } else if (to.meta.requiresUnauth && authStore.isAuthenticated()) {
+  } else if (to.fullPath === '/login' && authStore.isAuthenticated()) {
     next('/home')
   } else {
     next()
   }
 })
-
 export default router
