@@ -1,0 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Albert+Sans&family=Dosis:wght@700&family=Plus+Jakarta+Sans&display=swap');
+* {
+  margin: 0;
+  padding: 0;
+}
+.isax {
+  font-size: 20px;
+}
+:root {
+
+  /* login  */
+  --primary: #d65a03;
+  --login-heading: #4e3423;
+  --username-password-lable: #4e392b;
+  --login-submit-button: #fb8430;
+}
