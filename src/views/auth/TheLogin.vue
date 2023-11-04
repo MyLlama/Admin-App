@@ -73,7 +73,6 @@ onMounted(() => {
 
         <div class="d-flex flex-row justify-center align-center">
           <v-checkbox :label="$t('Remember me')" color="orange" hide-details></v-checkbox>
-          <p class="forgot-password-button text-body-2">{{ $t('Forgot Password?') }}</p>
         </div>
 
         <v-btn
@@ -84,6 +83,7 @@ onMounted(() => {
           Login
         </v-btn>
       </v-form>
+
     </v-card>
   </v-dialog>
 

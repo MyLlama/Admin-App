@@ -22,7 +22,7 @@ export const useAuthStore = defineStore('auth', () => {
           client_id: import.meta.env.VITE_CLIENT_ID
         }
       })
-      
+
       authToken.value = response.data.access_token
       userId.value = username
       const expiresIn = +response.data.expires_in * 1000
